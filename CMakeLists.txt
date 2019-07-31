@@ -4,14 +4,14 @@
 # @copyright 2019, Sergey Baigudin, Embedded Team
 # @license   http://embedded.team/license/
 
-enable_language(CXX)
+enable_language(CXX ASM)
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(eoos
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/include
 )
 
-target_sources(${PROJECT_NAME}
+target_sources(eoos
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/source/cpu.Allocator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/source/cpu.Boot.cpp
