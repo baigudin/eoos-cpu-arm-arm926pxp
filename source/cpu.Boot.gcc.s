@@ -7,7 +7,7 @@
  * @copyright 2019, Embedded Team, Sergey Baigudin
  * @license   http://embedded.team/license/
  */
-        .thumb
+        .arm
 
         .global    _c_int00
 
@@ -15,6 +15,7 @@
         .extern    __bss_end__
         .extern    main
         .extern    CpuBoot_initialize
+        .extern    CpuUart_putString
 
 /* Mode bits of program status registers */
 #define PSR_USR 0x00000010
@@ -45,29 +46,70 @@
  * The bootstrap routine.
  */
 _c_int00:
-        /* Synchronize data and instructions */
-        dsb
-        isb
         /* Disable IRQ and FIQ interrupts */
         cpsid   if
-        /* Reset registers */
+        /* Output the Hello message */
+        ldr     r0,  =s_hello
+        bl      CpuUart_putString
+        /* Set FIQ mode */
+        mov     r0,  #PSR_I|PSR_F|PSR_FIQ
+        msr     cpsr_fsxc, r0
+        mov     r8,  #0
+        mov     r9,  #0
+        mov     r10, #0
+        mov     r11, #0
+        mov     r12, #0
+        ldr     sp,  =__fiq_stack_top__
+        mov     lr,  #0
+        /* Set IRQ mode */
+        mov     r0,  #PSR_I|PSR_F|PSR_IRQ
+        msr     cpsr_fsxc, r0
+        ldr     sp,  =__irq_stack_top__
+        mov     lr,  #0
+        /* Set abort mode */
+        mov     r0,  #PSR_I|PSR_F|PSR_ABT
+        msr     cpsr_fsxc, r0
+        ldr     sp,  =__abt_stack_top__
+        mov     lr,  #0
+        /* Set undefined mode */
+        mov     r0,  #PSR_I|PSR_F|PSR_UND
+        msr     cpsr_fsxc, r0
+        ldr     sp,  =__und_stack_top__
+        mov     lr,  #0
+        /* Set supervisor mode */
+        mov     r0,  #PSR_I|PSR_F|PSR_SVC
+        msr     cpsr_fsxc, r0
+        ldr     sp,  =__svc_stack_top__
+        mov     lr,  #0
+        /* Set system mode */
+        mov     r0,  #PSR_I|PSR_F|PSR_SYS
+        msr     cpsr_fsxc, r0
         mov     r0,  #0
-        mov     r1,  r0
-        mov     r2,  r0
-        mov     r3,  r0
-        mov     r4,  r0
-        mov     r5,  r0
-        mov     r6,  r0
-        mov     r7,  r0
-        mov     r8,  r0
-        mov     r9,  r0
-        mov     r10, r0
-        mov     r11, r0
-        mov     r12, r0
-        ldr     r0, =__usr_stack_top__
-        mov     sp,  r0
-        mov     r0,  #0
-        mov     lr,  r0
+        mov     r1,  #0
+        mov     r2,  #0
+        mov     r3,  #0
+        mov     r4,  #0
+        mov     r5,  #0
+        mov     r6,  #0
+        mov     r7,  #0
+        mov     r8,  #0
+        mov     r9,  #0
+        mov     r10, #0
+        mov     r11, #0
+        mov     r12, #0
+        ldr     sp, =__usr_stack_top__
+        mov     lr,  #0
+        /* Clean bss section */
+        mov     r0, #0             /* Fill value */
+        ldr     r1, =__bss_start__ /* Start of memory block */
+        ldr     r3, =__bss_end__   /* End of memory block */
+        subs    r4, r3, r1         /* Length of block */
+        beq     m_clear_end
+mc_clear:
+        strb    r0, [r1], #1
+        subs    r4, r4, #1
+        bgt     mc_clear
+m_clear_end:
         /* Call C/C++ environment initialization */
         bl      CpuBoot_initialize
         cmp     R0, #0
@@ -77,6 +119,20 @@ mc_no_boot:
         bl      main
         /* The execution of the system is terminated */
         cpsid   if
-mc_terminate:
-        wfi
+        /* Output the completion message */
+        cmp     r0, #0
+        beq     m_goodbye
+m_error:
+        ldr     r0,  =s_error
+        bl      CpuUart_putString
         b       mc_terminate
+m_goodbye:
+        ldr     r0,  =s_goodbye
+        bl      CpuUart_putString
+        /* Get idle */
+mc_terminate:
+        b       mc_terminate
+
+s_hello:    .asciz "[0.000000000] EOOS RT execution started\n"
+s_goodbye:  .asciz "[X.CCCCCCCCC] EOOS RT execution completed successfully\n"
+s_error:    .asciz "[X.EEEEEEEEE] EOOS RT execution terminated with an error\n"

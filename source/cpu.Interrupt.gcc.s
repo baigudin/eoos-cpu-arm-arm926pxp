@@ -5,7 +5,7 @@
  * @copyright 2019, Embedded Team, Sergey Baigudin
  * @license   http://embedded.team/license/
  */
-        .thumb
+        .arm
         .extern  _c_int00
 
 /****************************************************************************/
@@ -13,23 +13,27 @@
 /**
  * Hardware interrupt exception vectors.
  */
-        .section    .hwi
-        .word       __usr_stack_top__
-        .word       m_interrupt_handle_reset
-        .word       m_interrupt_handle_nmi
-        .word       m_interrupt_handle_hard_fault
-        .word       m_interrupt_handle_memory_management
-        .word       m_interrupt_handle_bus_fault
-        .word       m_interrupt_handle_usage_fault
-        .word       0xDEADDEAD
-        .word       0xDEADDEAD
-        .word       0xDEADDEAD
-        .word       0xDEADDEAD
-        .word       m_interrupt_handle_sv_call
-        .word       m_interrupt_handle_debug_monitor
-        .word       0xDEADDEAD
-        .word       m_interrupt_handle_pend_sv
-        .word       m_interrupt_handle_sys_tick
+        .section    .text.hwi, "ax"
+m_reset:                                               /* Priorities */
+        ldr     pc, a_m_interrupt_handle_rst           /* 0 */
+        ldr     pc, a_m_interrupt_handle_und           /* 5 */
+        ldr     pc, a_m_interrupt_handle_swi           /* 5 */
+        ldr     pc, a_m_interrupt_handle_abt_prefetch  /* 4 */
+        ldr     pc, a_m_interrupt_handle_abt_data      /* 1 */
+        .word   0xDEADDEAD                             /* N */
+        ldr     pc, a_m_interrupt_handle_irq           /* 3 */
+        ldr     pc, a_m_interrupt_handle_fiq           /* 2 */
+
+    /* TODO: This has to be moved in memory to somewhere, as it shouldn't be located after the
+             the HWI table probably. But also the labels must be accessible for LDR instructions. */
+a_m_interrupt_handle_rst:          .word m_interrupt_handle_rst
+a_m_interrupt_handle_und:          .word m_interrupt_handle_und
+a_m_interrupt_handle_swi:          .word m_interrupt_handle_swi
+a_m_interrupt_handle_abt_prefetch: .word m_interrupt_handle_abt_prefetch
+a_m_interrupt_handle_abt_data:     .word m_interrupt_handle_abt_data
+a_m_interrupt_handle_res:          .word 0xDEADDEAD
+a_m_interrupt_handle_irq:          .word m_interrupt_handle_irq
+a_m_interrupt_handle_fiq:          .word m_interrupt_handle_fiq
 
 /****************************************************************************/
 
@@ -37,59 +41,42 @@
 /**
  * Reset exception handler.
  */
-m_interrupt_handle_reset:
-        b       _c_int00
+m_interrupt_handle_rst:
+        ldr     pc, a_m__c_int00
+
+a_m__c_int00: .word _c_int00
 
 /**
- * Non-maskable Interrupt exception handler.
+ * Undefined Instruction exception handler.
  */
-m_interrupt_handle_nmi:
-        b       m_interrupt_handle_nmi
+m_interrupt_handle_und:
+        b       m_interrupt_handle_und
 
 /**
- * Hard Fault exception handler.
+ * Undefined Instruction exception handler.
  */
-m_interrupt_handle_hard_fault:
-        b       m_interrupt_handle_hard_fault
+m_interrupt_handle_swi:
+        b       m_interrupt_handle_swi
+/**
+ * Prefetch Abort exception handler.
+ */
+m_interrupt_handle_abt_prefetch:
+        b       m_interrupt_handle_abt_prefetch
 
 /**
- * Memory Management exception handler.
+ * Data Abort exception handler.
  */
-m_interrupt_handle_memory_management:
-        b       m_interrupt_handle_memory_management
+m_interrupt_handle_abt_data:
+        b       m_interrupt_handle_abt_data
 
 /**
- * Bus Fault exception handler.
+ * IRQ exception handler.
  */
-m_interrupt_handle_bus_fault:
-        b       m_interrupt_handle_bus_fault
+m_interrupt_handle_irq:
+        b       m_interrupt_handle_irq
 
 /**
- * Usage Fault exception handler.
+ * FIQ exception handler.
  */
-m_interrupt_handle_usage_fault:
-        b       m_interrupt_handle_usage_fault
-
-/**
- * SVCall exception handler.
- */
-m_interrupt_handle_sv_call:
-        b       m_interrupt_handle_sv_call
-
-/**
- * Debug Monitor exception handler.
- */
-m_interrupt_handle_debug_monitor:
-        b       m_interrupt_handle_debug_monitor
-
-/**
- * PendSV exception handler.
- */
-m_interrupt_handle_pend_sv:
-        b       m_interrupt_handle_pend_sv
-
-/**
- * SysTick exception handler.
- */
-m_interrupt_handle_sys_tick:
-        b       m_interrupt_handle_sys_tick
+m_interrupt_handle_fiq:
+        b       m_interrupt_handle_fiq

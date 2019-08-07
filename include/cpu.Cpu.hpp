@@ -136,7 +136,7 @@ namespace local
              * @param obj a reference to source object.
              * @return reference to this object.
              */
-            Cpu& operator =(const Cpu& obj);
+            Cpu& operator=(const Cpu& obj);
 
             /**
              * Configuration of the operating system.

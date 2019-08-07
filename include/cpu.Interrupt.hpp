@@ -77,7 +77,7 @@ namespace local
              * @param obj reference to source object.
              * @return reference to this object.
              */
-            Interrupt& operator =(const Interrupt& obj);
+            Interrupt& operator=(const Interrupt& obj);
 
             /**
              * Configuration of the operating system.

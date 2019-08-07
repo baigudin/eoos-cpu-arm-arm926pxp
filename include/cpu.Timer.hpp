@@ -75,7 +75,7 @@ namespace local
              * @param obj reference to source object.
              * @return reference to this object.
              */
-            Timer& operator =(const Timer& obj);
+            Timer& operator=(const Timer& obj);
 
             /**
              * Configuration of the operating system.

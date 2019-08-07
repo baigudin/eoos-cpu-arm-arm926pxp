@@ -4,8 +4,6 @@
 # @copyright 2019, Sergey Baigudin, Embedded Team
 # @license   http://embedded.team/license/
 
-enable_language(CXX ASM)
-
 target_include_directories(eoos
 PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/include
@@ -20,4 +18,8 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/source/cpu.Object.cpp
     ${CMAKE_CURRENT_LIST_DIR}/source/cpu.Pll.cpp
     ${CMAKE_CURRENT_LIST_DIR}/source/cpu.Timer.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/source/cpu.Interrupt.gcc.s
+    ${CMAKE_CURRENT_LIST_DIR}/source/cpu.Boot.gcc.s
+    ${CMAKE_CURRENT_LIST_DIR}/source/cpu.Uart.gcc.s
 )

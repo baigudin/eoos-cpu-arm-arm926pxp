@@ -74,7 +74,7 @@ namespace local
              * @param obj reference to source object.
              * @return reference to this object.
              */
-            Pll& operator =(const Pll& obj);
+            Pll& operator=(const Pll& obj);
 
             /**
              * Configuration of the operating system.
