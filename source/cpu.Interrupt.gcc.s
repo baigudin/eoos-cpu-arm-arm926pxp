@@ -6,7 +6,7 @@
  * @license   http://embedded.team/license/
  */
         .arm
-        .extern  _c_int00
+        .extern  _start
 
 /****************************************************************************/
 
@@ -42,9 +42,9 @@ a_m_interrupt_handle_fiq:          .word m_interrupt_handle_fiq
  * Reset exception handler.
  */
 m_interrupt_handle_rst:
-        ldr     pc, a_m__c_int00
+        ldr     pc, a_m__start
 
-a_m__c_int00: .word _c_int00
+a_m__start: .word _start
 
 /**
  * Undefined Instruction exception handler.

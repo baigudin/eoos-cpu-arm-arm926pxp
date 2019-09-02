@@ -9,7 +9,7 @@
  */
         .arm
 
-        .global    _c_int00
+        .global    _start
 
         .extern    __bss_start__
         .extern    __bss_end__
@@ -45,7 +45,7 @@
 /**
  * The bootstrap routine.
  */
-_c_int00:
+_start:
         /* Disable IRQ and FIQ interrupts */
         cpsid   if
         /* Output the Hello message */
