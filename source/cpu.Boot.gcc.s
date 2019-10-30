@@ -125,10 +125,13 @@ mc_no_boot:
 m_error:
         ldr     r0,  =s_error
         bl      CpuUart_putString
-        b       mc_terminate
+        b       m_terminate
 m_goodbye:
         ldr     r0,  =s_goodbye
         bl      CpuUart_putString
+m_terminate:
+        /* The system termination label must present for demonstrating debugging sequence */
+_terminate:
         /* Get idle */
 mc_terminate:
         b       mc_terminate
